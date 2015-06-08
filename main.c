@@ -12,12 +12,17 @@
 #include <util/delay.h>
 
 #include "i2cmaster.h"
+#include "font.h"
 
 #define SHIFT_REGISTER DDRB
 #define SHIFT_PORT PORTB
 #define DATA (1<<PB3)		//MOSI (SI)
 #define LATCH (1<<PB2)		//SS   (RCK)
 #define CLOCK (1<<PB5)		//SCK  (SCK)
+
+//Screen Parameters
+#define SCREENX 128 //Screen width
+#define SCREENY 64  //Screen height
 
 #define OLED_ADDRESS					0x78
 
@@ -30,6 +35,8 @@
 #define OLED_DATA_MODE				    0x40
 
 #define PAGE_ADDRESSING		        	0x02
+
+uint8_t message[] = "HELLOWORLDHELLOWORLDHELLOWORLDHELLOWORLDHELLOWORLDHELLOWORLDHELLOWORLD\0";
 
 //Send send address, send command or data mode, send data, send stop
 
@@ -53,11 +60,12 @@ void oledWriteData(uint8_t data) {
     i2c_stop();
 }
 
-void oledSetCursor(uint8_t page, uint8_t col) {
+void oledSetCursor(uint8_t col, uint8_t page) {
+    col += 2;   //Display off by 2 columns for some reason
     //Page
     oledWriteCmd(0xB0 + page);
     //Column
-    oledWriteCmd((0x0F & col)+2);
+    oledWriteCmd(0x0F & col);
     oledWriteCmd(0x10 + (col>>4));
 }
 
@@ -70,9 +78,50 @@ void oledClearScreen(uint8_t black) {
         oledWriteCmd(0x10);
         i2c_stop();
 
+        i2c_start_wait(OLED_ADDRESS);
+        i2c_write(OLED_DATA_MODE);
         for (uint8_t col=0; col<128; col++) {
             oledWriteData(value);
         }
+        i2c_stop();
+    }
+}
+
+void putChar(uint8_t charIdx) {
+    for (uint8_t col = 0; col < 5; col++) {
+        oledWriteData(font5x7[(charIdx*5)+col]);
+    }
+}
+
+void putString(int16_t x, int16_t y, uint8_t *msg) {
+    const uint8_t charWidth = 6;
+    const uint8_t charHeight = 1;
+
+    //Find str length
+    uint8_t i;
+    for (i=0; i<141; i++) {
+        if (msg[i] == 0) {
+            if (i == 0) { return; } //zero len string
+            else { break; }
+        }
+    }
+    uint16_t colPosition;
+    uint16_t rowPosition;
+    for (uint8_t j=0; j<i; j++) {
+        printf("%d\n", msg[j]);
+        colPosition = x+(charWidth*j);
+        rowPosition = y;
+
+        //Linewrap
+        if (colPosition+charWidth >= SCREENX) {
+            uint8_t charPerRow = (SCREENX/charWidth);
+            uint8_t charPos = j-((SCREENX-x)/charWidth);
+
+            colPosition = (charPos%charPerRow)*charWidth;
+            rowPosition = y+charHeight + (charHeight*(charPos/charPerRow));
+        }
+        oledSetCursor(colPosition, rowPosition);
+        putChar(msg[j]-65);
     }
 }
 
@@ -134,12 +183,16 @@ int main(void)
     oledClearScreen(1);
 
     for (uint8_t i=0; i<8; i++) {
-        oledSetCursor(i,0);
+        oledSetCursor(0, i);
         oledWriteData(0xFF);
-        oledSetCursor(i,127);
+        oledSetCursor(127, i);
         oledWriteData(0xFF);
     }
 
+    oledSetCursor(3, 0);
+    putChar(1);
+
+    putString(120,2, (uint8_t *)&message);
   while(1)
   {
     //wait for a little bit before repeating everything
