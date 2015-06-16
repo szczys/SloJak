@@ -20,7 +20,9 @@
 #define LATCH (1<<PB2)		//SS   (RCK)
 #define CLOCK (1<<PB5)		//SCK  (SCK)
 
-#define BUT_PIN (1<<PB1)
+#define BUT_SEL     (1<<PB6)
+#define BUT_LEFT    (1<<PB1)
+#define BUT_RIGHT   (1<<PB7)
 
 //Screen Parameters
 #define SCREENX 128 //Screen width
@@ -50,8 +52,8 @@ void init_IO(void){
     DDRB |= (1<<PB0);	    //Set control pins as outputs
     PORTB &= ~(1<<PB0);     //Set control pins low
 
-    DDRB &= ~(1<<PB6);      //Set as input
-    PORTB |= (1<<PB6);      //Enable pull-up
+    DDRB &= ~(BUT_LEFT | BUT_RIGHT | BUT_SEL);      //Set as input
+    PORTB |= BUT_LEFT | BUT_RIGHT | BUT_SEL;      //Enable pull-up
 }
 
 void oledWriteCmd(uint8_t cmd) {
@@ -99,6 +101,7 @@ void putChar(uint8_t charIdx) {
     for (uint8_t col = 0; col < 5; col++) {
         oledWriteData(font5x7[(charIdx*5)+col]);
     }
+    oledWriteData(0x00);    //Space after each letter
 }
 
 void putString(int16_t x, int16_t y, uint8_t *msg) {
@@ -134,8 +137,8 @@ void putString(int16_t x, int16_t y, uint8_t *msg) {
 }
 
 void advanceCursor(uint8_t size) {
-    cursX += 6;
-    if (cursX > SCREENX-6) {
+    cursX += size;
+    if (cursX > SCREENX-size) {
         cursX = 0;
         if (++cursY >= SCREENY) { cursY = 0; }
     }
@@ -149,7 +152,7 @@ int main(void)
 
     oledWriteCmd(OLED_CMD_DISPLAY_OFF);
     oledWriteCmd(0xD5); //clkdiv
-    oledWriteCmd(0x80); 
+    oledWriteCmd(0x80);
     oledWriteCmd(0xA8); //multiplex
     oledWriteCmd(0x3F);
     oledWriteCmd(0xD3); //displayoffet
@@ -208,18 +211,27 @@ int main(void)
     oledSetCursor(3, 0);
     putChar(1);
 
-    //putString(120,2, (uint8_t *)&message);
+    putString(120,2, (uint8_t *)&message);
 
   while(1)
   {
     //wait for a little bit before repeating everything
-
+    uint8_t readButtons = PINB;
     _delay_ms(40);
-    if (PINB & (1<<PB6)) {
-    }
-    else {
+    if (~readButtons & BUT_LEFT) {
         oledSetCursor(cursX, cursY);
-        putChar(8);
+        putChar(11);
+        advanceCursor(6);
+    }
+    if (~readButtons & BUT_RIGHT) {
+        oledSetCursor(cursX, cursY);
+        putChar(17);
+        advanceCursor(6);
+        //PORTB |= (1<<PB0);
+    }
+    if (~readButtons & BUT_SEL) {
+        oledSetCursor(cursX, cursY);
+        putChar(18);
         advanceCursor(6);
         //PORTB |= (1<<PB0);
     }
