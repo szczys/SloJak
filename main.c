@@ -28,6 +28,9 @@
 #define SCREENX 128 //Screen width
 #define SCREENY 64  //Screen height
 
+#define CHARWID 6   //Includes space after letter
+#define CHARPERLINE SCREENX/CHARWID
+
 #define OLED_ADDRESS					0x78
 
 #define OLED_CMD_DISPLAY_OFF			0xAE
@@ -144,6 +147,15 @@ void advanceCursor(uint8_t size) {
     }
 }
 
+void showCharList(uint8_t startChar, uint8_t maxChar, uint8_t line) {
+    for (uint8_t i=0; i<CHARPERLINE; i++) {
+        if (startChar>=maxChar) { startChar = 0; }
+        oledSetCursor((i*CHARWID)+1,line);  //adding 1 centers on a 128px screen with 6px CHARWID
+        putChar(startChar);
+        startChar++;
+    }
+}
+
 int main(void)
 {
     init_IO();
@@ -212,6 +224,8 @@ int main(void)
     putChar(1);
 
     putString(120,2, (uint8_t *)&message);
+
+    showCharList(3,26,7);
 
   while(1)
   {
