@@ -197,7 +197,7 @@ returns: which char idx is highlighted onscreen
 */
 uint8_t findHighlighted(uint8_t curStart, uint8_t maxChar) {
     //NOTE: beware overflows
-    uint8_t newIdx = curStart+HIGHLIGHTCHAR+1;      //fixing off-by-one but don't know why
+    uint8_t newIdx = curStart+HIGHLIGHTCHAR;
     if (newIdx >= maxChar) { newIdx -= maxChar;}
     return newIdx;
 }
@@ -259,18 +259,19 @@ int main(void)
 */
     oledClearScreen(1);
 
+/*
     for (uint8_t i=0; i<8; i++) {
         oledSetCursor(0, i);
         oledWriteData(0xFF);
         oledSetCursor(127, i);
         oledWriteData(0xFF);
     }
-
+*/
     oledSetCursor(cursX, cursY);
     putChar(1);
     advanceCursor(6);
 
-    putString(120,2, (uint8_t *)&message);
+    //putString(120,2, (uint8_t *)&message);
 
     //show which letter will be selected
     showHighlighted(HIGHLIGHTCHAR*CHARWID+1,6);  //21 charperline on 128px display plus 1 pixel for centering
