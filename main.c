@@ -303,9 +303,10 @@ int main(void)
     oledSetCursor(cursX, cursY);
     putChar(1);
     advanceCursor(6);
-    
-    putDblChar(10,2,5);
 
+    putDblChar(10,2,5);
+    putDblChar(22,2,20);
+    putDblChar(34,2,13);
     //putString(120,2, (uint8_t *)&message);
 
     //show which letter will be selected
