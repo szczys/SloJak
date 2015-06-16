@@ -48,6 +48,9 @@ uint8_t message[140] = "HELLOWORLDHELLOWORLDHELLOWORLDHELLOWORLDHELLOWORLDHELLOW
 uint8_t cursX = 4;
 uint8_t cursY = 3;
 
+uint8_t charListStart = 3;
+#define CHARSETLEN  26  //How many characters does our fontfile have?
+
 //Send send address, send command or data mode, send data, send stop
 
 void init_IO(void){
@@ -156,6 +159,28 @@ void showCharList(uint8_t startChar, uint8_t maxChar, uint8_t line) {
     }
 }
 
+/*
+Decrements index tracking which letter starts alphabet
+startChar is first letter printed on line
+maxChar is total number of chars in set
+*/
+uint8_t decCharIdx(uint8_t startChar, uint8_t maxChar)
+{
+    if (startChar == 0) { return maxChar-1; }
+    return --startChar;
+}
+
+/*
+Increments index tracking which letter starts alphabet
+startChar is first letter printed on line
+maxChar is total number of chars in set
+*/
+uint8_t incCharIdx(uint8_t startChar, uint8_t maxChar)
+{
+    if (startChar >= maxChar) { return 0; }
+    return ++startChar;
+}
+
 int main(void)
 {
     init_IO();
@@ -225,7 +250,8 @@ int main(void)
 
     putString(120,2, (uint8_t *)&message);
 
-    showCharList(3,26,7);
+
+    showCharList(charListStart,CHARSETLEN,7);
 
   while(1)
   {
@@ -233,15 +259,12 @@ int main(void)
     uint8_t readButtons = PINB;
     _delay_ms(40);
     if (~readButtons & BUT_LEFT) {
-        oledSetCursor(cursX, cursY);
-        putChar(11);
-        advanceCursor(6);
+        charListStart = decCharIdx(charListStart,CHARSETLEN);
+        showCharList(charListStart,CHARSETLEN,7);
     }
     if (~readButtons & BUT_RIGHT) {
-        oledSetCursor(cursX, cursY);
-        putChar(17);
-        advanceCursor(6);
-        //PORTB |= (1<<PB0);
+        charListStart = incCharIdx(charListStart,CHARSETLEN);
+        showCharList(charListStart,CHARSETLEN,7);
     }
     if (~readButtons & BUT_SEL) {
         oledSetCursor(cursX, cursY);
