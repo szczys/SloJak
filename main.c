@@ -9,6 +9,7 @@
 #define F_CPU 1000000
 
 #include <avr/io.h>
+#include <avr/interrupt.h>
 #include <util/delay.h>
 
 #include "i2cmaster.h"
@@ -126,7 +127,6 @@ void putString(int16_t x, int16_t y, uint8_t *msg) {
     uint16_t colPosition;
     uint16_t rowPosition;
     for (uint8_t j=0; j<i; j++) {
-        printf("%d\n", msg[j]);
         colPosition = x+(charWidth*j);
         rowPosition = y;
 
@@ -237,7 +237,19 @@ void putDblChar(uint8_t x, uint8_t y, uint8_t charIdx) {
 
 int main(void)
 {
+
+    //setup pin change interrupt
+    PCICR |= 1<<PCIE0;      //enable PCINT0_vect  (PCINT0..7 pins)
+    PCMSK0 |= 1<<PCINT6;    //interrupt on PCINT6 pin
+    
+
     init_IO();
+    
+    //setup pin change interrupt
+    PCICR |= 1<<PCIE0;      //enable PCINT0_vect  (PCINT0..7 pins)
+    PCMSK0 |= 1<<PCINT6;    //interrupt on PCINT6 pin
+    sei();
+    
     _delay_ms(200);
     i2c_init();
 
@@ -326,13 +338,21 @@ int main(void)
         charListStart = incCharIdx(charListStart,CHARSETLEN);
         showCharList(charListStart,CHARSETLEN,7);
     }
+    /*
     if (~readButtons & BUT_SEL) {
         oledSetCursor(cursX, cursY);
         putChar(findHighlighted(charListStart,CHARSETLEN));
         advanceCursor(6);
         //PORTB |= (1<<PB0);
     }
-
+    */
     //PINB = (1<<PB0);    //Toggle the ouut
   }
+}
+
+ISR(PCINT0_vect) {
+    //pb6 is PCINT6
+    if (PINB & 1<<PB6) { PINB = (1<<PB0); }
+   // else { PORTB |= 1<<PB0; }
+    //PINB = (1<<PB0);    //Toggle the ouut
 }
