@@ -202,6 +202,39 @@ uint8_t findHighlighted(uint8_t curStart, uint8_t maxChar) {
     return newIdx;
 }
 
+uint8_t embiggen(uint8_t charSlice, uint8_t bottom) {
+    if (bottom) { charSlice = charSlice>>4; }
+    uint8_t returnByte = 0x00;
+    for (uint8_t i=0; i<8; i++) {
+    /*
+        old new
+        0   0
+        0   1
+        1   2
+        1   3
+        2   4
+        2   5
+        3   6
+        3   7
+    */
+        if (charSlice & (1<<(i/2))) { returnByte |= (1<<i); }
+    }
+    return returnByte;
+}
+
+void putDblChar(uint8_t x, uint8_t y, uint8_t charIdx) {
+    for (uint8_t row=0; row<2; row++) {
+        for (uint8_t col = 0; col < 5; col++) {
+            uint8_t embiggened = embiggen(font5x7[(charIdx*5)+col],row);
+            oledSetCursor(x+(2*col),y+row);
+            oledWriteData(embiggened);
+            oledWriteData(embiggened);
+        }
+        oledWriteData(0x00);    //Space after each letter
+        oledWriteData(0x00);    //Space after each letter
+    }
+}
+
 int main(void)
 {
     init_IO();
@@ -270,6 +303,8 @@ int main(void)
     oledSetCursor(cursX, cursY);
     putChar(1);
     advanceCursor(6);
+    
+    putDblChar(10,2,5);
 
     //putString(120,2, (uint8_t *)&message);
 
