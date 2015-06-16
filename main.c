@@ -181,6 +181,14 @@ uint8_t incCharIdx(uint8_t startChar, uint8_t maxChar)
     return ++startChar;
 }
 
+void showHighlighted(uint8_t x, uint8_t y) {
+    oledSetCursor(x,y);
+    for (uint8_t i=0; i<5; i++) {
+        oledWriteData(0b01000000);
+    }
+    oledWriteData(0x00);
+}
+
 int main(void)
 {
     init_IO();
@@ -250,7 +258,8 @@ int main(void)
 
     putString(120,2, (uint8_t *)&message);
 
-
+    //show which letter will be selected
+    showHighlighted((6*10)+1,6);  //21 charperline on 128px display plus 1 pixel for centering
     showCharList(charListStart,CHARSETLEN,7);
 
   while(1)
