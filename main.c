@@ -20,6 +20,8 @@
 #define LATCH (1<<PB2)		//SS   (RCK)
 #define CLOCK (1<<PB5)		//SCK  (SCK)
 
+#define BUT_PIN (1<<PB1)
+
 //Screen Parameters
 #define SCREENX 128 //Screen width
 #define SCREENY 64  //Screen height
@@ -36,14 +38,20 @@
 
 #define PAGE_ADDRESSING		        	0x02
 
-uint8_t message[] = "HELLOWORLDHELLOWORLDHELLOWORLDHELLOWORLDHELLOWORLDHELLOWORLDHELLOWORLD\0";
+uint8_t message[140] = "HELLOWORLDHELLOWORLDHELLOWORLDHELLOWORLDHELLOWORLDHELLOWORLDHELLOWORLD\0";
+
+uint8_t cursX = 4;
+uint8_t cursY = 3;
 
 //Send send address, send command or data mode, send data, send stop
 
 void init_IO(void){
-  //Setup IO
-  DDRB |= (1<<PB0);	//Set control pins as outputs
-  PORTB &= ~(1<<PB0);		//Set control pins low
+  //Setup
+    DDRB |= (1<<PB0);	    //Set control pins as outputs
+    PORTB &= ~(1<<PB0);     //Set control pins low
+
+    DDRB &= ~(1<<PB6);      //Set as input
+    PORTB |= (1<<PB6);      //Enable pull-up
 }
 
 void oledWriteCmd(uint8_t cmd) {
@@ -125,6 +133,14 @@ void putString(int16_t x, int16_t y, uint8_t *msg) {
     }
 }
 
+void advanceCursor(uint8_t size) {
+    cursX += 6;
+    if (cursX > SCREENX-6) {
+        cursX = 0;
+        if (++cursY >= SCREENY) { cursY = 0; }
+    }
+}
+
 int main(void)
 {
     init_IO();
@@ -192,11 +208,22 @@ int main(void)
     oledSetCursor(3, 0);
     putChar(1);
 
-    putString(120,2, (uint8_t *)&message);
+    //putString(120,2, (uint8_t *)&message);
+
   while(1)
   {
     //wait for a little bit before repeating everything
-    _delay_ms(200);
-    PINB = (1<<PB0);    //Toggle the ouput
+
+    _delay_ms(40);
+    if (PINB & (1<<PB6)) {
+    }
+    else {
+        oledSetCursor(cursX, cursY);
+        putChar(8);
+        advanceCursor(6);
+        //PORTB |= (1<<PB0);
+    }
+
+    //PINB = (1<<PB0);    //Toggle the ouut
   }
 }
