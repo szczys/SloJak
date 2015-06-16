@@ -29,7 +29,8 @@
 #define SCREENY 64  //Screen height
 
 #define CHARWID 6   //Includes space after letter
-#define CHARPERLINE SCREENX/CHARWID
+#define CHARPERLINE SCREENX/CHARWID     //Max chars per line
+#define HIGHLIGHTCHAR CHARPERLINE/2     //Find center(ish) char
 
 #define OLED_ADDRESS					0x78
 
@@ -45,8 +46,8 @@
 
 uint8_t message[140] = "HELLOWORLDHELLOWORLDHELLOWORLDHELLOWORLDHELLOWORLDHELLOWORLDHELLOWORLD\0";
 
-uint8_t cursX = 4;
-uint8_t cursY = 3;
+uint8_t cursX = 1;
+uint8_t cursY = 0;
 
 uint8_t charListStart = 3;
 #define CHARSETLEN  26  //How many characters does our fontfile have?
@@ -189,6 +190,18 @@ void showHighlighted(uint8_t x, uint8_t y) {
     oledWriteData(0x00);
 }
 
+/*
+curStart = which char is first on the row
+maxChar = total number of chars in set
+returns: which char idx is highlighted onscreen
+*/
+uint8_t findHighlighted(uint8_t curStart, uint8_t maxChar) {
+    //NOTE: beware overflows
+    uint8_t newIdx = curStart+HIGHLIGHTCHAR+1;      //fixing off-by-one but don't know why
+    if (newIdx >= maxChar) { newIdx -= maxChar;}
+    return newIdx;
+}
+
 int main(void)
 {
     init_IO();
@@ -253,13 +266,14 @@ int main(void)
         oledWriteData(0xFF);
     }
 
-    oledSetCursor(3, 0);
+    oledSetCursor(cursX, cursY);
     putChar(1);
+    advanceCursor(6);
 
     putString(120,2, (uint8_t *)&message);
 
     //show which letter will be selected
-    showHighlighted((6*10)+1,6);  //21 charperline on 128px display plus 1 pixel for centering
+    showHighlighted(HIGHLIGHTCHAR*CHARWID+1,6);  //21 charperline on 128px display plus 1 pixel for centering
     showCharList(charListStart,CHARSETLEN,7);
 
   while(1)
@@ -277,7 +291,7 @@ int main(void)
     }
     if (~readButtons & BUT_SEL) {
         oledSetCursor(cursX, cursY);
-        putChar(18);
+        putChar(findHighlighted(charListStart,CHARSETLEN));
         advanceCursor(6);
         //PORTB |= (1<<PB0);
     }
