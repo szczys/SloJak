@@ -26,7 +26,7 @@
 #define ENC_A 6
 #define ENC_B 7
 
-volatile int8_t selected_option = 0;
+volatile int8_t knobChange = 0;
 
 /************** Setup input buttons *********************/
 #define BUT_DDR     DDRC
@@ -112,8 +112,8 @@ int main(void)
         }
         switch (windowMode) {
             case 0:
-                if (selected_option) {
-                    if (selected_option > 0) {
+                if (knobChange) {
+                    if (knobChange > 0) {
                         incSelOpt();
                         slideAlphaLeft();
                     }
@@ -121,7 +121,7 @@ int main(void)
                         decSelOpt();
                         slideAlphaRight();
                     }
-                    selected_option = 0;
+                    knobChange = 0;
                 }
 
                 if (goLeft) {
@@ -140,7 +140,15 @@ int main(void)
                 break;
 
             case MENUCANCEL:
-
+                if (knobChange) {
+                    if (knobChange > 0) {
+                        menuUp();
+                    }
+                    else {
+                        menuDn();
+                    }
+                    knobChange = 0;
+                }
                 break;
         }
     }
@@ -176,11 +184,11 @@ ISR(PCINT0_vect) {
   encval += pgm_read_byte(&(enc_states[( old_AB & 0x0f )]));
   /* post "Navigation forward/reverse" event */
   if( encval < -3 ) {  //four steps forward
-    selected_option = -1;
+    knobChange = -1;
     encval = 0;
   }
   else if( encval > 3  ) {  //four steps backwards
-    selected_option = 1;
+    knobChange = 1;
     encval = 0;
   }
 }

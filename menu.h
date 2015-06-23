@@ -5,7 +5,7 @@
 
 extern uint8_t optionIndex;
 
-void showArrow(void);
+void showArrow(uint8_t boolean);
 void drawDivider(uint8_t page);
 void showMenu(uint8_t defaultOption);
 
