@@ -5,6 +5,8 @@
 
 extern uint8_t optionIndex;
 
-extern void menuCancel(uint8_t message, uint8_t selected);
+void showArrow(void);
+void drawDivider(uint8_t page);
+void showMenu(uint8_t defaultOption);
 
 #endif

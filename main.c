@@ -43,6 +43,7 @@ uint8_t message[140] = "HELLOWORLDHELLOWORLDHELLOWORLDHELLOWORLDHELLOWORLDHELLOW
 uint8_t charListStart = 3;
 #define CHARSETLEN  26  //How many characters does our fontfile have?
 
+uint8_t previousMode = 0;
 uint8_t windowMode = 0;
 #define MENUCANCEL  1
 
@@ -51,6 +52,7 @@ void incSelOpt(void);
 void decSelOpt(void);
 void slideAlphaLeft(void);
 void slideAlphaRight(void);
+void changeMode(uint8_t newMode);
 /**************** End Prototypes *********************************/
 
 void init_IO(void){
@@ -72,6 +74,11 @@ void init_interrupts(void) {
     PCMSK0 |= 1<<PCINT6;    //interrupt on PCINT6 pin
     PCMSK0 |= 1<<PCINT7;    //interrupt on PCINT7 pin
     sei();
+}
+
+void changeMode(uint8_t newMode) {
+    previousMode = windowMode;
+    windowMode = newMode;
 }
 
 int main(void)
@@ -118,10 +125,10 @@ int main(void)
                 }
 
                 if (goLeft) {
-                    windowMode = MENUCANCEL;
+                    changeMode(MENUCANCEL);
                     goLeft = 0;
                     goSel = 0;
-                    menuCancel(0,0);
+                    showMenu(0);
                 }
                 else if (goSel) {
                     oledSetCursor(cursX, cursY);

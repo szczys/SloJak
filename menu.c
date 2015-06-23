@@ -1,24 +1,16 @@
 #include "menu.h"
 #include "oledControl.h"
 
-uint8_t selX1, selX2, selY;
+uint8_t totOptions, arrowOnLine, curTopOptionIdx;
 
-optionIndex = 0;
-
-int16_t getCenter(uint8_t msgLen) {
-    return 64-((msgLen/2)*6);
-}
-
-void showArrows(void) {
+void showArrow(void) {
     //FIXME: Get proper font file and use real arrow codes
     //Arrow on the left
-    oledSetCursor(selX1,selY);
+    oledSetCursor(0,arrowOnLine);
     putChar(26,0);
-    //Arrow on the right
-    oledSetCursor(selX2,selY);
-    putChar(27,0);
 }
 
+/*
 void menuCancel(uint8_t message, uint8_t selected) {
     oledClearScreen(1);
     //Cancel Message?
@@ -33,6 +25,7 @@ void menuCancel(uint8_t message, uint8_t selected) {
     selY = 4;
     showArrows();
 }
+*/
 
 /* Better universal menu design:
 
@@ -51,7 +44,7 @@ indexes: whichMenu, totOptions, arrowOnLine, curTopOptionIdx
 
 void drawDivider(uint8_t page) {
     oledSetCursor(0,page);
-    for (uint8_t i=0, i<128, i++) { oledWriteData(0x3C); }
+    for (uint8_t i=0; i<128; i++) { oledWriteData(0x3C); }
 }
 
 void showMenu(uint8_t defaultOption) {
@@ -70,6 +63,6 @@ void showMenu(uint8_t defaultOption) {
     totOptions = 2;
     arrowOnLine = 2+defaultOption;
     curTopOptionIdx = 0;    //Which option from the option array is currently in optionLine0
-    showArrows();
+    showArrow();
 }
 
