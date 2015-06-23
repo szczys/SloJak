@@ -57,8 +57,8 @@ uint8_t charListStart = 3;
 
 void init_IO(void){
   //Setup
-    DDRB |= (1<<PB0);	    //Set control pins as outputs
-    PORTB &= ~(1<<PB0);     //Set control pins low
+    DDRB |= (1<<PB0) | (1<<PB2);	    //Set control pins as outputs
+    PORTB &= ~(1<<PB0 | 1<<PB2);     //Set control pins low
 
     DDRB &= ~(BUT_LEFT | BUT_RIGHT | BUT_SEL);      //Set as input
     PORTB |= BUT_LEFT | BUT_RIGHT | BUT_SEL;      //Enable pull-up
@@ -328,6 +328,7 @@ int main(void)
   while(1)
   {
     //wait for a little bit before repeating everything
+    /*
     uint8_t readButtons = PINB;
     _delay_ms(40);
     if (~readButtons & BUT_LEFT) {
@@ -338,7 +339,6 @@ int main(void)
         charListStart = incCharIdx(charListStart,CHARSETLEN);
         showCharList(charListStart,CHARSETLEN,7);
     }
-    /*
     if (~readButtons & BUT_SEL) {
         oledSetCursor(cursX, cursY);
         putChar(findHighlighted(charListStart,CHARSETLEN));
@@ -351,8 +351,49 @@ int main(void)
 }
 
 ISR(PCINT0_vect) {
+    static uint8_t lastGrey = 0x00;
     //pb6 is PCINT6
-    if (PINB & 1<<PB6) { PINB = (1<<PB0); }
-   // else { PORTB |= 1<<PB0; }
-    //PINB = (1<<PB0);    //Toggle the ouut
+    //pb7 is PCINT7
+
+    /*  pb6   pb7
+    rigth
+        0   1
+        0   0
+        1   0
+        1   1
+
+    left
+        1   0
+        0   0
+        0   1
+        1   1
+    */
+
+
+    uint8_t tempPIN = PINB;
+/*
+    if ((tempPIN & (1<<PB6 | 1<<PB7)) == (1<<PB6 | 1<<PB7)) {
+        //We're at a preset, read now
+        if (lastGrey == 1<<PB6) {
+            //We're turning right
+            PORTB |= 1<<PB2;
+            PORTB &= ~(1<<PB0);
+        }
+        if (lastGrey == 1<<PB7) {
+            //We're turning left
+            PORTB |= 1<<PB0;
+            PORTB &= ~(1<<PB2);
+        }
+    }
+    else {
+        //PORTB |= 1<<PB0;
+        //PORTB &= ~(1<<PB2);
+        lastGrey = tempPIN & (1<<PB6 | 1<<PB7);     //Store state for future interrupt
+    }
+*/
+    if (tempPIN & 1<<PB6) { PORTB |= 1<<PB0; }
+    else { PORTB &= ~(1<<PB0); }
+    if (tempPIN & 1<<PB7) { PORTB |= 1<<PB2; }
+    else { PORTB &= ~(1<<PB2); }
+    
 }
