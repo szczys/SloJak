@@ -340,13 +340,19 @@ int main(void)
     showHighlighted(HIGHLIGHTCHAR*CHARWID+1,6);  //21 charperline on 128px display plus 1 pixel for centering
     showCharList(charListStart,CHARSETLEN,7);
 
-  while(1)
-  {
-    if (selected_option) {
-      if (selected_option > 0) { incSelOpt(); }
-      else { decSelOpt(); }
-      selected_option = 0;
-    }
+    while(1)
+    {
+        if (selected_option) {
+            if (selected_option > 0) {
+                incSelOpt();
+                slideAlphaLeft();
+            }
+            else {
+                decSelOpt();
+                slideAlphaRight();
+            }
+            selected_option = 0;
+        }
 
     //wait for a little bit before repeating everything
     /*
@@ -379,6 +385,16 @@ void incSelOpt(void) {
 void decSelOpt(void) {
     PORTB &= ~(1<<PB2);
     PORTB |= 1<<PB0;
+}
+
+void slideAlphaLeft(void) {
+    charListStart = decCharIdx(charListStart,CHARSETLEN);
+    showCharList(charListStart,CHARSETLEN,7);
+}
+
+void slideAlphaRight(void) {
+    charListStart = incCharIdx(charListStart,CHARSETLEN);
+    showCharList(charListStart,CHARSETLEN,7);
 }
 
 ISR(PCINT0_vect) {
