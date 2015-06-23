@@ -1,9 +1,9 @@
 /********************************
-* Driving shift registers using	*
-* an AVR chip's hardwarre SPI	*
-*				*
-* http://jumptuck.com 		*
-*				*
+* SloJak                    	*
+* MIT License               	*
+* Copyright 2015 - Mike Szczys  *
+* http://jumptuck.com 	    	*
+*				                *
 ********************************/
 
 #define F_CPU 8000000
@@ -14,6 +14,7 @@
 #include <util/delay.h>
 
 #include "oledControl.h"
+//#include "menu.h"
 
 /************** Setup a rotary encoder ********************/
 /* Atmega168 */
@@ -71,27 +72,18 @@ int main(void)
     init_IO();
     init_interrupts();
     oledInit();
+    _delay_ms(200);
+    //initMenu();
 
-/*
-    for (uint8_t i=0; i<8; i++) {
-        oledSetCursor(0, i);
-        oledWriteData(0xFF);
-        oledSetCursor(127, i);
-        oledWriteData(0xFF);
-    }
-*/
     oledSetCursor(cursX, cursY);
     putChar(1);
     advanceCursor(6);
 
-    putDblChar(10,2,5);
-    putDblChar(22,2,20);
-    putDblChar(34,2,13);
-    //putString(120,2, (uint8_t *)&message);
-
     //show which letter will be selected
     showHighlighted(HIGHLIGHTCHAR*CHARWID+1,6);  //21 charperline on 128px display plus 1 pixel for centering
     showCharList(charListStart,CHARSETLEN,7);
+    
+    //menuCancel(0,0);
 
     while(1)
     {
