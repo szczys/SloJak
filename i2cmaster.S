@@ -73,12 +73,7 @@
 	.func i2c_delay_T2	; delay 5.0 microsec with 4 Mhz crystal	
 i2c_delay_T2:        ; 4 cycles
 	rjmp 1f      ; 2   "
-1:	rjmp 2f      ; 2   "
-2:	rjmp 3f      ; 2   "
-3:	rjmp 4f      ; 2   "
-4:	rjmp 5f      ; 2   "
-5: 	rjmp 6f      ; 2   "
-6:	nop          ; 1   "
+1:	nop          ; 1   "
 	ret          ; 3   "
 	.endfunc     ; total 20 cyles = 5.0 microsec with 4 Mhz crystal 
 
