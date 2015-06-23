@@ -16,6 +16,7 @@
 #include "i2cmaster.h"
 #include "font.h"
 
+/************** Setup a rotary encoder********************/
 /* Atmega168 */
 /* encoder port */
 #define ENC_CTL	DDRB	//encoder port control
@@ -23,6 +24,9 @@
 #define ENC_RD	PINB	//encoder port read
 #define ENC_A 6
 #define ENC_B 7
+
+volatile int8_t selected_option = 0;
+/*********************************************************/
 
 //Display
 #define SHIFT_REGISTER DDRB
@@ -338,6 +342,12 @@ int main(void)
 
   while(1)
   {
+    if (selected_option) {
+      if (selected_option > 0) { incSelOpt(); }
+      else { decSelOpt(); }
+      selected_option = 0;
+    }
+
     //wait for a little bit before repeating everything
     /*
     uint8_t readButtons = PINB;
@@ -381,11 +391,11 @@ ISR(PCINT0_vect) {
   encval += pgm_read_byte(&(enc_states[( old_AB & 0x0f )]));
   /* post "Navigation forward/reverse" event */
   if( encval < -3 ) {  //four steps forward
-    incSelOpt();
+    selected_option = -1;
     encval = 0;
   }
   else if( encval > 3  ) {  //four steps backwards
-    decSelOpt();
+    selected_option = 1;
     encval = 0;
   }
 }
