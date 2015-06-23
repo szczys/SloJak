@@ -10,11 +10,21 @@
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
+#include <avr/pgmspace.h>
 #include <util/delay.h>
 
 #include "i2cmaster.h"
 #include "font.h"
 
+/* Atmega168 */
+/* encoder port */
+#define ENC_CTL	DDRB	//encoder port control
+#define ENC_WR	PORTB	//encoder port write	
+#define ENC_RD	PINB	//encoder port read
+#define ENC_A 6
+#define ENC_B 7
+
+//Display
 #define SHIFT_REGISTER DDRB
 #define SHIFT_PORT PORTB
 #define DATA (1<<PB3)		//MOSI (SI)
@@ -248,6 +258,7 @@ int main(void)
     //setup pin change interrupt
     PCICR |= 1<<PCIE0;      //enable PCINT0_vect  (PCINT0..7 pins)
     PCMSK0 |= 1<<PCINT6;    //interrupt on PCINT6 pin
+    PCMSK0 |= 1<<PCINT7;    //interrupt on PCINT7 pin
     sei();
     
     _delay_ms(200);
@@ -350,50 +361,31 @@ int main(void)
   }
 }
 
+void incSelOpt(void) {
+    PORTB &= ~(1<<PB0);
+    PORTB |= 1<<PB2;
+}
+
+void decSelOpt(void) {
+    PORTB &= ~(1<<PB2);
+    PORTB |= 1<<PB0;
+}
+
 ISR(PCINT0_vect) {
-    static uint8_t lastGrey = 0x00;
-    //pb6 is PCINT6
-    //pb7 is PCINT7
-
-    /*  pb6   pb7
-    rigth
-        0   1
-        0   0
-        1   0
-        1   1
-
-    left
-        1   0
-        0   0
-        0   1
-        1   1
-    */
-
-
-    uint8_t tempPIN = PINB;
-/*
-    if ((tempPIN & (1<<PB6 | 1<<PB7)) == (1<<PB6 | 1<<PB7)) {
-        //We're at a preset, read now
-        if (lastGrey == 1<<PB6) {
-            //We're turning right
-            PORTB |= 1<<PB2;
-            PORTB &= ~(1<<PB0);
-        }
-        if (lastGrey == 1<<PB7) {
-            //We're turning left
-            PORTB |= 1<<PB0;
-            PORTB &= ~(1<<PB2);
-        }
-    }
-    else {
-        //PORTB |= 1<<PB0;
-        //PORTB &= ~(1<<PB2);
-        lastGrey = tempPIN & (1<<PB6 | 1<<PB7);     //Store state for future interrupt
-    }
-*/
-    if (tempPIN & 1<<PB6) { PORTB |= 1<<PB0; }
-    else { PORTB &= ~(1<<PB0); }
-    if (tempPIN & 1<<PB7) { PORTB |= 1<<PB2; }
-    else { PORTB &= ~(1<<PB2); }
-    
+  static uint8_t old_AB = 3;  //lookup table index
+  static int8_t encval = 0;   //encoder value  
+  static const int8_t enc_states [] PROGMEM = {0,-1,1,0,1,0,0,-1,-1,0,0,1,0,1,-1,0};  //encoder lookup table
+  /**/
+  old_AB <<=2;  //remember previous state
+  old_AB |= ((ENC_RD>>6) & 0x03 ); //Shift magic to get PB6 and PB7 to LSB
+  encval += pgm_read_byte(&(enc_states[( old_AB & 0x0f )]));
+  /* post "Navigation forward/reverse" event */
+  if( encval < -3 ) {  //four steps forward
+    incSelOpt();
+    encval = 0;
+  }
+  else if( encval > 3  ) {  //four steps backwards
+    decSelOpt();
+    encval = 0;
+  }
 }
