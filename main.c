@@ -35,10 +35,16 @@ volatile int8_t selected_option = 0;
 #define BUT_LEFT    (1<<PC0)
 #define BUT_SEL     (1<<PC1)
 
+uint8_t goLeft = 0;
+uint8_t goSel = 0;
+
 uint8_t message[140] = "HELLOWORLDHELLOWORLDHELLOWORLDHELLOWORLDHELLOWORLDHELLOWORLDHELLOWORLD\0";
 
 uint8_t charListStart = 3;
 #define CHARSETLEN  26  //How many characters does our fontfile have?
+
+uint8_t windowMode = 0;
+#define MENUCANCEL  1
 
 /**************** Prototypes *************************************/
 void incSelOpt(void);
@@ -85,31 +91,50 @@ int main(void)
 
     while(1)
     {
-        if (selected_option) {
-            if (selected_option > 0) {
-                incSelOpt();
-                slideAlphaLeft();
-            }
-            else {
-                decSelOpt();
-                slideAlphaRight();
-            }
-            selected_option = 0;
-        }
-
         static uint16_t butCounter = 0;
         if (butCounter++ > 65000) {
             //FIXME: Proper button debounce and handling
             butCounter = 0;
             uint8_t readButtons = BUT_PIN;
             if (~readButtons & BUT_LEFT) {
-                menuCancel(0,0);
+                ++goLeft;
             }
             if (~readButtons & BUT_SEL) {
-                oledSetCursor(cursX, cursY);
-                putChar(findHighlighted(charListStart,CHARSETLEN), 1);
-                advanceCursor(6);
+                ++goSel;
             }
+        }
+        switch (windowMode) {
+            case 0:
+                if (selected_option) {
+                    if (selected_option > 0) {
+                        incSelOpt();
+                        slideAlphaLeft();
+                    }
+                    else {
+                        decSelOpt();
+                        slideAlphaRight();
+                    }
+                    selected_option = 0;
+                }
+
+                if (goLeft) {
+                    windowMode = MENUCANCEL;
+                    goLeft = 0;
+                    goSel = 0;
+                    menuCancel(0,0);
+                }
+                else if (goSel) {
+                    oledSetCursor(cursX, cursY);
+                    putChar(findHighlighted(charListStart,CHARSETLEN), 1);
+                    advanceCursor(6);
+                    goLeft = 0;
+                    goSel = 0;
+                }
+                break;
+
+            case MENUCANCEL:
+
+                break;
         }
     }
 }
