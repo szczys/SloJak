@@ -15,29 +15,23 @@
 
 #include "oledControl.h"
 
-/************** Setup a rotary encoder********************/
+/************** Setup a rotary encoder ********************/
 /* Atmega168 */
 /* encoder port */
 #define ENC_CTL	DDRB	//encoder port control
-#define ENC_WR	PORTB	//encoder port write	
+#define ENC_WR	PORTB	//encoder port write
 #define ENC_RD	PINB	//encoder port read
 #define ENC_A 6
 #define ENC_B 7
 
 volatile int8_t selected_option = 0;
-/*********************************************************/
 
-//Display
-#define SHIFT_REGISTER DDRB
-#define SHIFT_PORT PORTB
-#define DATA (1<<PB3)		//MOSI (SI)
-#define LATCH (1<<PB2)		//SS   (RCK)
-#define CLOCK (1<<PB5)		//SCK  (SCK)
-
-#define BUT_SEL     (1<<PB6)
-#define BUT_LEFT    (1<<PB1)
-#define BUT_RIGHT   (1<<PB7)
-
+/************** Setup input buttons *********************/
+#define BUT_DDR     DDRC
+#define BUT_PORT    PORTC
+#define BUT_PIN     PINC
+#define BUT_LEFT    (1<<PC0)
+#define BUT_SEL     (1<<PC1)
 
 uint8_t message[140] = "HELLOWORLDHELLOWORLDHELLOWORLDHELLOWORLDHELLOWORLDHELLOWORLDHELLOWORLD\0";
 
@@ -52,32 +46,30 @@ void slideAlphaRight(void);
 /**************** End Prototypes *********************************/
 
 void init_IO(void){
-  //Setup
-    DDRB |= (1<<PB0) | (1<<PB2);	    //Set control pins as outputs
-    PORTB &= ~(1<<PB0 | 1<<PB2);     //Set control pins low
+    //Rotary Encoder
+    ENC_CTL &= ~(1<<ENC_A | 1<<ENC_B);
+    ENC_WR |= 1<<ENC_A | 1<<ENC_B;
 
-    DDRB &= ~(BUT_LEFT | BUT_RIGHT | BUT_SEL);      //Set as input
-    PORTB |= BUT_LEFT | BUT_RIGHT | BUT_SEL;      //Enable pull-up
+    //LEDs
+    DDRB |= (1<<PB0) | (1<<PB2);    //Set control pins as outputs
+    PORTB &= ~(1<<PB0 | 1<<PB2);    //Set control pins low
+
+    //Buttons
+    BUT_DDR &= ~(BUT_LEFT | BUT_SEL);      //Set as input
+    BUT_PORT |= BUT_LEFT | BUT_SEL;      //Enable pull-up
 }
 
-int main(void)
-{
-
-    //setup pin change interrupt
-    PCICR |= 1<<PCIE0;      //enable PCINT0_vect  (PCINT0..7 pins)
-    PCMSK0 |= 1<<PCINT6;    //interrupt on PCINT6 pin
-    
-
-    init_IO();
-    
-    //setup pin change interrupt
+void init_interrupts(void) {
     PCICR |= 1<<PCIE0;      //enable PCINT0_vect  (PCINT0..7 pins)
     PCMSK0 |= 1<<PCINT6;    //interrupt on PCINT6 pin
     PCMSK0 |= 1<<PCINT7;    //interrupt on PCINT7 pin
     sei();
-    
-    _delay_ms(200);
+}
 
+int main(void)
+{
+    init_IO();
+    init_interrupts();
     oledInit();
 
 /*
@@ -115,27 +107,22 @@ int main(void)
             selected_option = 0;
         }
 
-    //wait for a little bit before repeating everything
-    /*
-    uint8_t readButtons = PINB;
-    _delay_ms(40);
-    if (~readButtons & BUT_LEFT) {
-        charListStart = decCharIdx(charListStart,CHARSETLEN);
-        showCharList(charListStart,CHARSETLEN,7);
+        static uint16_t butCounter = 0;
+        if (butCounter++ > 65000) {
+            //FIXME: Proper button debounce and handling
+            butCounter = 0;
+            uint8_t readButtons = BUT_PIN;
+            if (~readButtons & BUT_LEFT) {
+                incSelOpt();
+                PORTB |= 1<<PB0;
+            }
+            if (~readButtons & BUT_SEL) {
+                oledSetCursor(cursX, cursY);
+                putChar(findHighlighted(charListStart,CHARSETLEN));
+                advanceCursor(6);
+            }
+        }
     }
-    if (~readButtons & BUT_RIGHT) {
-        charListStart = incCharIdx(charListStart,CHARSETLEN);
-        showCharList(charListStart,CHARSETLEN,7);
-    }
-    if (~readButtons & BUT_SEL) {
-        oledSetCursor(cursX, cursY);
-        putChar(findHighlighted(charListStart,CHARSETLEN));
-        advanceCursor(6);
-        //PORTB |= (1<<PB0);
-    }
-    */
-    //PINB = (1<<PB0);    //Toggle the ouut
-  }
 }
 
 void incSelOpt(void) {
