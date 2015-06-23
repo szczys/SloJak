@@ -38,7 +38,7 @@ OPT = s
 FORMAT = ihex
 
 # List C source files here. (C dependencies are automatically generated.)
-SRC = $(TARGET).c oledControl.c
+SRC = $(TARGET).c oledControl.c menu.c
 
 # If there is more than one source file, append them above, or modify and
 # uncomment the following:

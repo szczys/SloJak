@@ -100,14 +100,16 @@ void oledClearScreen(uint8_t black) {
     }
 }
 
-void putChar(uint8_t charIdx) {
+void putChar(uint8_t charIdx, uint8_t inverted) {
+    uint8_t invertMask = 0x00;
+    if (inverted) { invertMask = 0xFF; }
     for (uint8_t col = 0; col < 5; col++) {
-        oledWriteData(font5x7[(charIdx*5)+col]);
+        oledWriteData((font5x7[(charIdx*5)+col])^invertMask);
     }
-    oledWriteData(0x00);    //Space after each letter
+    oledWriteData(invertMask);    //Space after each letter
 }
 
-void putString(int16_t x, int16_t y, uint8_t *msg) {
+void putString(int16_t x, int16_t y, uint8_t *msg, uint8_t inverted) {
     const uint8_t charWidth = 6;
     const uint8_t charHeight = 1;
 
@@ -134,7 +136,7 @@ void putString(int16_t x, int16_t y, uint8_t *msg) {
             rowPosition = y+charHeight + (charHeight*(charPos/charPerRow));
         }
         oledSetCursor(colPosition, rowPosition);
-        putChar(msg[j]-65);
+        putChar(msg[j]-65, inverted);
     }
 }
 
@@ -150,7 +152,7 @@ void showCharList(uint8_t startChar, uint8_t maxChar, uint8_t line) {
     for (uint8_t i=0; i<CHARPERLINE; i++) {
         if (startChar>=maxChar) { startChar = 0; }
         oledSetCursor((i*CHARWID)+1,line);  //adding 1 centers on a 128px screen with 6px CHARWID
-        putChar(startChar);
+        putChar(startChar, 0);
         startChar++;
     }
 }
