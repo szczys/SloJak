@@ -127,7 +127,7 @@ int main(void)
                     changeMode(MENUCANCEL);
                     goLeft = 0;
                     goSel = 0;
-                    showMenu(0);
+                    cancelMsg();
                 }
                 else if (goSel) {
                     oledSetCursor(cursX, cursY);

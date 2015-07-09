@@ -48,7 +48,7 @@ uint8_t menuCancelOptions[2][4] = {
 
 void showArrow(uint8_t boolean);
 void drawDivider(uint8_t page);
-void showMenu(uint8_t defaultOption);
+void showMenu(uint8_t defaultOption, uint8_t *titleString);
 void putOption(uint8_t lineNum, uint8_t *optionString);
 void menuDn(void);
 void menuUp(void);

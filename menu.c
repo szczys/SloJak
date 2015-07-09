@@ -21,6 +21,7 @@ uint8_t const menuChoice[7][2] = {
     { MSGDISPLAY, MSGDISPLAY }
     };
 
+uint8_t tempStr[20];
 
 uint8_t totOptions, arrowOnLine, curTopOptionIdx;
 
@@ -69,29 +70,17 @@ void drawDivider(uint8_t page) {
     for (uint8_t i=0; i<128; i++) { oledWriteData(0x3C); }
 }
 
-void showMenu(uint8_t defaultOption) {
+void showMenu(uint8_t defaultOption, uint8_t *titleString) {
     oledClearScreen(1);
     
     //TODO: All this stuff should be set programmatically.
     //TODO: Typdef a data type to hold: title, number of options, option text
     //Cancel Message?
 
-    putString(0,0,"CANCEL MESSAGE?\0",0);
+    putString(0,0, titleString,0);
     drawDivider(1);
-    //No
-    //putString(12,2, "NO\0",0);
-    uint8_t tempStr[20];
-    strcpy(tempStr, "NO\0");
-    putOption(2, tempStr);
 
-    //Yes
-    //putString(12,3, "YES\0", 0);
-    strcpy(tempStr, "YES\0");
-    putOption(3, tempStr);
-
-    totOptions = 2;
     arrowOnLine = 2+defaultOption;
-    curTopOptionIdx = 0;    //Which option from the option array is currently in optionLine0
     showArrow(1);
 }
 
@@ -107,7 +96,24 @@ void homeScreen(void)
 }
 
 void compose(void);
-void cancelMsg(void);
+void cancelMsg(void)
+{
+    //TODO: Set back button behavior
+    strcpy(tempStr, "CANCEL MESSAGE?\0");
+    showMenu(0, tempStr);
+    
+    //No
+    //putString(12,2, "NO\0",0);
+    strcpy(tempStr, "NO\0");
+    putOption(2, tempStr);
+
+    //Yes
+    //putString(12,3, "YES\0", 0);
+    strcpy(tempStr, "YES\0");
+    putOption(3, tempStr);
+    
+    totOptions = 2;
+}
 void sendMsg(void);
 void confirmSend(void);
 void confirmCancel(void);
