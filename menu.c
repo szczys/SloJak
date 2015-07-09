@@ -1,5 +1,6 @@
 #include "menu.h"
 #include "oledControl.h"
+#include "string.h"
 
 /************************Menu Defines ****************************/
 #define COMPOSE         0
@@ -74,15 +75,19 @@ void showMenu(uint8_t defaultOption) {
     //TODO: All this stuff should be set programmatically.
     //TODO: Typdef a data type to hold: title, number of options, option text
     //Cancel Message?
+
     putString(0,0,"CANCEL MESSAGE?\0",0);
     drawDivider(1);
     //No
     //putString(12,2, "NO\0",0);
-    putOption("NO\0");
+    uint8_t tempStr[20];
+    strcpy(tempStr, "NO\0");
+    putOption(2, tempStr);
 
     //Yes
     //putString(12,3, "YES\0", 0);
-    putOption("YES\0");
+    strcpy(tempStr, "YES\0");
+    putOption(3, tempStr);
 
     totOptions = 2;
     arrowOnLine = 2+defaultOption;
@@ -90,7 +95,7 @@ void showMenu(uint8_t defaultOption) {
     showArrow(1);
 }
 
-void putOption(uint8_t lineNum, uint8_t optionString[])
+void putOption(uint8_t lineNum, uint8_t *optionString)
 {
     putString(12,lineNum, optionString, 0);
 }
