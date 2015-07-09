@@ -45,7 +45,6 @@ uint8_t charListStart = 3;
 
 uint8_t previousMode = 0;
 uint8_t windowMode = 0;
-#define MENUCANCEL  1
 
 /**************** Prototypes *************************************/
 void incSelOpt(void);

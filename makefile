@@ -181,7 +181,7 @@ REMOVE = rm -f
 COPY = cp
 
 HEXSIZE = $(SIZE) --target=$(FORMAT) $(TARGET).hex
-ELFSIZE = $(SIZE) -A $(TARGET).elf
+ELFSIZE = $(SIZE) -C --mcu=$(MCU) $(TARGET).elf #$(SIZE) -A $(TARGET).elf
 
 
 
