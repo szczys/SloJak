@@ -59,11 +59,14 @@ void menuDn(void);
 void menuUp(void);
 void homeScreen(void);
 void compose(void);
+void selectChar(void);
 void cancelMsg(void);
 void sendMsg(void);
 void confirmSend(void);
 void confirmCancel(void);
 void msgList(void);
 void msgDsp(void);
+void slideAlphaLeft(void);
+void slideAlphaRight(void);
 
 #endif

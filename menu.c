@@ -38,6 +38,10 @@ char tempStr[20];
 
 uint8_t totOptions, arrowOnLine, curTopOptionIdx;
 
+/**************** Compose Window Vars ************************/
+uint8_t charListStart = 0;
+#define CHARSETLEN  96  //How many characters does our fontfile have?
+
 void initMenu(void)
 {
     //TODO: Drawing initial screen should be handled here
@@ -126,7 +130,20 @@ void homeScreen(void)
     totOptions = 2;
 }
 
-void compose(void);
+void compose(void)
+{
+    //show which letter will be selected
+    showHighlighted(HIGHLIGHTCHAR*CHARWID+1,6);  //21 charperline on 128px display plus 1 pixel for centering
+    showCharList(charListStart,CHARSETLEN,7);
+}
+
+void selectChar(void)
+{
+    oledSetCursor(cursX, cursY);
+    putChar(findHighlighted(charListStart,CHARSETLEN)+32, 0);
+    advanceCursor(6);
+}
+
 void cancelMsg(void)
 {
     //TODO: Set back button behavior
@@ -150,4 +167,15 @@ void confirmSend(void);
 void confirmCancel(void);
 void msgList(void);
 void msgDsp(void);
+
+/************************ Compose Screen Stuff *************************/
+void slideAlphaLeft(void) {
+    charListStart = decCharIdx(charListStart,CHARSETLEN);
+    showCharList(charListStart,CHARSETLEN,7);
+}
+
+void slideAlphaRight(void) {
+    charListStart = incCharIdx(charListStart,CHARSETLEN);
+    showCharList(charListStart,CHARSETLEN,7);
+}
 

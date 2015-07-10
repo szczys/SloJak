@@ -40,17 +40,12 @@ uint8_t goSel = 0;
 
 uint8_t message[140] = "HELLOWORLDHELLOWORLDHELLOWORLDHELLOWORLDHELLOWORLDHELLOWORLDHELLOWORLD\0";
 
-uint8_t charListStart = 0;
-#define CHARSETLEN  96  //How many characters does our fontfile have?
-
 uint8_t previousMode = 0;
 uint8_t windowMode = 0;
 
 /**************** Prototypes *************************************/
 void incSelOpt(void);
 void decSelOpt(void);
-void slideAlphaLeft(void);
-void slideAlphaRight(void);
 void changeMode(uint8_t newMode);
 /**************** End Prototypes *********************************/
 
@@ -91,9 +86,7 @@ int main(void)
     putChar(66,1);
     advanceCursor(6);
 
-    //show which letter will be selected
-    showHighlighted(HIGHLIGHTCHAR*CHARWID+1,6);  //21 charperline on 128px display plus 1 pixel for centering
-    showCharList(charListStart,CHARSETLEN,7);
+    compose();
 
     initMenu();
 
@@ -133,9 +126,7 @@ int main(void)
                     doBack();
                 }
                 else if (goSel) {
-                    oledSetCursor(cursX, cursY);
-                    putChar(findHighlighted(charListStart,CHARSETLEN)+32, 0);
-                    advanceCursor(6);
+                    selectChar();
                     goLeft = 0;
                     goSel = 0;
                 }
@@ -174,16 +165,6 @@ void incSelOpt(void) {
 void decSelOpt(void) {
     PORTB &= ~(1<<PB2);
     PORTB |= 1<<PB0;
-}
-
-void slideAlphaLeft(void) {
-    charListStart = decCharIdx(charListStart,CHARSETLEN);
-    showCharList(charListStart,CHARSETLEN,7);
-}
-
-void slideAlphaRight(void) {
-    charListStart = incCharIdx(charListStart,CHARSETLEN);
-    showCharList(charListStart,CHARSETLEN,7);
 }
 
 ISR(PCINT0_vect) {
