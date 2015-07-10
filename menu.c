@@ -23,6 +23,16 @@ uint8_t const menuChoice[7][2] = {
 
 uint8_t curMenu = COMPOSE;
 uint8_t optionIndex = 0;
+void (*doBack)(void) = &cancelMsg;
+void (*doSelect[6])(void) = {
+    &homeScreen,
+    &homeScreen,
+    &homeScreen,
+    &homeScreen,
+    &homeScreen,
+    &homeScreen
+    };
+
 
 char tempStr[20];
 
@@ -38,7 +48,7 @@ void showArrow(uint8_t boolean) {
     //Arrow on the left
     oledSetCursor(0,arrowOnLine);
     if (boolean) { putChar(126,0); }
-    else { putChar(" ",0); } //FIXME: This should be a space " " but font file doesn't implement it yet
+    else { putChar(32,0); } //FIXME: This should be a space " " but font file doesn't implement it yet
 }
 
 void menuUp(void) {
@@ -97,30 +107,23 @@ void putOption(uint8_t lineNum, char *optionString)
     putString(12,lineNum, optionString, 0);
 }
 
-void menuAction(void)
-{
-    switch(menuChoice[curMenu][optionIndex]) {
-        case(COMPOSE):
-            break;
-        case(HOMESCREEN):
-            break;
-        case(CANCELMSG):
-            break;
-        case(SENDMSG):
-            break;
-        case(CONFIRMSEND):
-            break;
-        case(MSGLIST):
-            break;
-        case(MSGDISPLAY):
-            break;
-    }
-}
-
 void homeScreen(void)
 {
-    //Set what back button does
-    
+    //TODO: Set back button behavior
+    strcpy(tempStr, "Stupid Messager\0");
+    showMenu(0, tempStr);
+
+    //No
+    //putString(12,2, "NO\0",0);
+    strcpy(tempStr, "Write Message\0");
+    putOption(2, tempStr);
+
+    //Yes
+    //putString(12,3, "YES\0", 0);
+    strcpy(tempStr, "Read Meesages\0");
+    putOption(3, tempStr);
+
+    totOptions = 2;
 }
 
 void compose(void);

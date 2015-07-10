@@ -6,6 +6,9 @@
 extern uint8_t optionIndex;
 extern uint8_t curMenu;
 
+extern void (*doBack)(void);
+extern void (*doSelect[6])(void);
+
 /*
 typedef struct MenuTAG {
     uint8_t x;          //Position on the game surface, 0 is left
@@ -54,7 +57,6 @@ void showMenu(uint8_t defaultOption, char *titleString);
 void putOption(uint8_t lineNum, char *optionString);
 void menuDn(void);
 void menuUp(void);
-void menuAction(void);
 void homeScreen(void);
 void compose(void);
 void cancelMsg(void);

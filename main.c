@@ -129,7 +129,8 @@ int main(void)
                     changeMode(MENUCANCEL);
                     goLeft = 0;
                     goSel = 0;
-                    cancelMsg();
+                    //cancelMsg();
+                    doBack();
                 }
                 else if (goSel) {
                     oledSetCursor(cursX, cursY);
@@ -140,7 +141,7 @@ int main(void)
                 }
                 break;
 
-            case MENUCANCEL:
+            default:
                 if (knobChange) {
                     if (knobChange > 0) {
                         menuUp();
@@ -153,8 +154,13 @@ int main(void)
 
                 if (goSel) {
                     //Lookup and execute action
-                    menuAction();
+                    doSelect[optionIndex]();
+                    goSel = 0;
                 }
+                else if (goLeft) {
+                    doBack();
+                    goLeft = 0;
+                };
                 break;
         }
     }
