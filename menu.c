@@ -21,9 +21,17 @@ uint8_t const menuChoice[7][2] = {
     { MSGDISPLAY, MSGDISPLAY }
     };
 
-uint8_t tempStr[20];
+uint8_t curMenu = COMPOSE;
+uint8_t optionIndex = 0;
+
+char tempStr[20];
 
 uint8_t totOptions, arrowOnLine, curTopOptionIdx;
+
+void initMenu(void)
+{
+    //TODO: Drawing initial screen should be handled here
+}
 
 void showArrow(uint8_t boolean) {
     //FIXME: Get proper font file and use real arrow codes
@@ -70,9 +78,9 @@ void drawDivider(uint8_t page) {
     for (uint8_t i=0; i<128; i++) { oledWriteData(0x3C); }
 }
 
-void showMenu(uint8_t defaultOption, uint8_t *titleString) {
+void showMenu(uint8_t defaultOption, char *titleString) {
     oledClearScreen(1);
-    
+
     //TODO: All this stuff should be set programmatically.
     //TODO: Typdef a data type to hold: title, number of options, option text
     //Cancel Message?
@@ -84,9 +92,29 @@ void showMenu(uint8_t defaultOption, uint8_t *titleString) {
     showArrow(1);
 }
 
-void putOption(uint8_t lineNum, uint8_t *optionString)
+void putOption(uint8_t lineNum, char *optionString)
 {
     putString(12,lineNum, optionString, 0);
+}
+
+void menuAction(void)
+{
+    switch(menuChoice[curMenu][optionIndex]) {
+        case(COMPOSE):
+            break;
+        case(HOMESCREEN):
+            break;
+        case(CANCELMSG):
+            break;
+        case(SENDMSG):
+            break;
+        case(CONFIRMSEND):
+            break;
+        case(MSGLIST):
+            break;
+        case(MSGDISPLAY):
+            break;
+    }
 }
 
 void homeScreen(void)

@@ -109,7 +109,7 @@ void putChar(uint8_t charIdx, uint8_t inverted) {
     oledWriteData(invertMask);    //Space after each letter
 }
 
-void putString(int16_t x, int16_t y, uint8_t *msg, uint8_t inverted) {
+void putString(int16_t x, int16_t y, char *msg, uint8_t inverted) {
     const uint8_t charWidth = 6;
     const uint8_t charHeight = 1;
 

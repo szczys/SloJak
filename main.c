@@ -95,6 +95,8 @@ int main(void)
     showHighlighted(HIGHLIGHTCHAR*CHARWID+1,6);  //21 charperline on 128px display plus 1 pixel for centering
     showCharList(charListStart,CHARSETLEN,7);
 
+    initMenu();
+
     while(1)
     {
         static uint16_t butCounter = 0;
@@ -147,6 +149,11 @@ int main(void)
                         menuDn();
                     }
                     knobChange = 0;
+                }
+
+                if (goSel) {
+                    //Lookup and execute action
+                    menuAction();
                 }
                 break;
         }
