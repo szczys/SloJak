@@ -149,12 +149,11 @@ void advanceCursor(uint8_t size) {
 }
 
 void showCharList(uint8_t startChar, uint8_t maxChar, uint8_t line) {
-    uint8_t nowChar = startChar;
     for (uint8_t i=0; i<CHARPERLINE; i++) {
-        if (nowChar>=maxChar) { nowChar = startChar; }
+        if (startChar>=maxChar) { startChar = 0; }
         oledSetCursor((i*CHARWID)+1,line);  //adding 1 centers on a 128px screen with 6px CHARWID
-        putChar(nowChar+32, 0);
-        nowChar++;
+        putChar(startChar+32, 0);
+        startChar++;
     }
 }
 

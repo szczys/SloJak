@@ -41,7 +41,7 @@ uint8_t goSel = 0;
 uint8_t message[140] = "HELLOWORLDHELLOWORLDHELLOWORLDHELLOWORLDHELLOWORLDHELLOWORLDHELLOWORLD\0";
 
 uint8_t charListStart = 65;
-#define CHARSETLEN  95  //How many characters does our fontfile have?
+#define CHARSETLEN  96  //How many characters does our fontfile have?
 
 uint8_t previousMode = 0;
 uint8_t windowMode = 0;
@@ -88,7 +88,7 @@ int main(void)
     _delay_ms(200);
 
     oledSetCursor(cursX, cursY);
-    putChar(1,1);
+    putChar(34,1);
     advanceCursor(6);
 
     //show which letter will be selected
