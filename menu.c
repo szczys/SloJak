@@ -21,13 +21,14 @@ uint8_t const menuChoice[7][2] = {
     { MSGDISPLAY, MSGDISPLAY }
     };
 
+//Set initial behavior as compose message
 uint8_t curMenu = COMPOSE;
 uint8_t optionIndex = 0;
 void (*knobLeft)(void) = &slideAlphaLeft;
 void (*knobRight)(void) = &slideAlphaRight;
 void (*doBack)(void) = &cancelMsg;
 void (*doSelect[6])(void) = {
-    &homeScreen,
+    &selectChar,
     &homeScreen,
     &homeScreen,
     &homeScreen,
@@ -57,8 +58,11 @@ void knobNavigatesList(void)
 
 void knobScrollsAlphabet(void)
 {
-
+    knobLeft = &slideAlphaLeft;
+    knobRight = &slideAlphaRight;
 }
+
+
 
 void showArrow(uint8_t boolean) {
     //FIXME: Get proper font file and use real arrow codes
@@ -70,15 +74,17 @@ void showArrow(uint8_t boolean) {
 
 void menuUp(void) {
     //TODO: Handle lists larger than the screen has space for
-    showArrow(0);
+    showArrow(0);   //Erase Arrow
     if (--arrowOnLine < 2) { arrowOnLine = totOptions+1; }
-    showArrow(1);
+    optionIndex = arrowOnLine-2;
+    showArrow(1);   //Draw Arrow
 }
 
 void menuDn(void) {
     //TODO: Handle lists larger than the screen has space for
     showArrow(0);
     if (++arrowOnLine > totOptions+1) { arrowOnLine = 2; }
+    optionIndex = arrowOnLine-2;
     showArrow(1);
 }
 
@@ -108,13 +114,12 @@ void drawDivider(uint8_t page) {
 void showMenu(uint8_t defaultOption, char *titleString) {
     oledClearScreen(1);
 
-    //TODO: All this stuff should be set programmatically.
-    //TODO: Typdef a data type to hold: title, number of options, option text
-    //Cancel Message?
-
+    //Display the menu title
     putString(0,0, titleString,0);
+    //Divider between title and options (options added elsewhere)
     drawDivider(1);
 
+    //Draw the arrow for selecting options (options added elsewhere)
     arrowOnLine = 2+defaultOption;
     showArrow(1);
 }
@@ -127,6 +132,12 @@ void putOption(uint8_t lineNum, char *optionString)
 void homeScreen(void)
 {
     //TODO: Set back button behavior
+    knobNavigatesList();    //Setup Knob Behavior
+    //TODO: Fill the selection function pointer arrays
+    optionIndex = 0;
+    doSelect[0] = &compose;     //List available messages to read
+    doSelect[1] = &msgList;  //Compose message
+
     strcpy(tempStr, "Stupid Messager\0");
     showMenu(0, tempStr);
 
@@ -145,6 +156,13 @@ void homeScreen(void)
 
 void compose(void)
 {
+    oledClearScreen(1);
+    doBack = &cancelMsg;    //Set back button behavior
+    knobScrollsAlphabet();  //Setup Knob Behavior
+    //TODO: Fill the selection function pointer arrays
+    optionIndex = 0;
+    doSelect[0] = &selectChar;
+
     //show which letter will be selected
     showHighlighted(HIGHLIGHTCHAR*CHARWID+1,6);  //21 charperline on 128px display plus 1 pixel for centering
     showCharList(charListStart,CHARSETLEN,7);
@@ -162,6 +180,9 @@ void cancelMsg(void)
     //TODO: Set back button behavior
     knobNavigatesList();    //Setup Knob Behavior
     //TODO: Fill the selection function pointer arrays
+    optionIndex = 0;
+    doSelect[0] = &compose;    //TODO: if we go back to compose window, the partial composed message should appear
+    doSelect[1] = &homeScreen;  //Exit to the home screen
 
     strcpy(tempStr, "CANCEL MESSAGE?\0");
     showMenu(0, tempStr);
@@ -182,7 +203,10 @@ void cancelMsg(void)
 void sendMsg(void);
 void confirmSend(void);
 void confirmCancel(void);
-void msgList(void);
+void msgList(void)
+{
+    //FIXME: Do Something
+}
 void msgDsp(void);
 
 /************************ Compose Screen Stuff *************************/
