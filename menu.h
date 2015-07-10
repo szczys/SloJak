@@ -6,6 +6,8 @@
 extern uint8_t optionIndex;
 extern uint8_t curMenu;
 
+extern void (*knobLeft)(void);
+extern void (*knobRight)(void);
 extern void (*doBack)(void);
 extern void (*doSelect[6])(void);
 
@@ -51,6 +53,8 @@ uint8_t menuCancelOptions[2][4] = {
 */
 
 void initMenu(void);
+void knobNavigatesList(void);
+void knobScrollsAlphabet(void);
 void showArrow(uint8_t boolean);
 void drawDivider(uint8_t page);
 void showMenu(uint8_t defaultOption, char *titleString);

@@ -23,6 +23,8 @@ uint8_t const menuChoice[7][2] = {
 
 uint8_t curMenu = COMPOSE;
 uint8_t optionIndex = 0;
+void (*knobLeft)(void) = &slideAlphaLeft;
+void (*knobRight)(void) = &slideAlphaRight;
 void (*doBack)(void) = &cancelMsg;
 void (*doSelect[6])(void) = {
     &homeScreen,
@@ -45,6 +47,17 @@ uint8_t charListStart = 0;
 void initMenu(void)
 {
     //TODO: Drawing initial screen should be handled here
+}
+
+void knobNavigatesList(void)
+{
+    knobLeft = &menuUp;
+    knobRight = &menuDn;
+}
+
+void knobScrollsAlphabet(void)
+{
+
 }
 
 void showArrow(uint8_t boolean) {
@@ -147,9 +160,12 @@ void selectChar(void)
 void cancelMsg(void)
 {
     //TODO: Set back button behavior
+    knobNavigatesList();    //Setup Knob Behavior
+    //TODO: Fill the selection function pointer arrays
+
     strcpy(tempStr, "CANCEL MESSAGE?\0");
     showMenu(0, tempStr);
-    
+
     //No
     //putString(12,2, "NO\0",0);
     strcpy(tempStr, "NO\0");
@@ -159,9 +175,10 @@ void cancelMsg(void)
     //putString(12,3, "YES\0", 0);
     strcpy(tempStr, "YES\0");
     putOption(3, tempStr);
-    
+
     totOptions = 2;
 }
+
 void sendMsg(void);
 void confirmSend(void);
 void confirmCancel(void);

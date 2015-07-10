@@ -135,10 +135,12 @@ int main(void)
             default:
                 if (knobChange) {
                     if (knobChange > 0) {
-                        menuUp();
+                        //menuUp();
+                        knobLeft();
                     }
                     else {
-                        menuDn();
+                        //menuDn();
+                        knobRight();
                     }
                     knobChange = 0;
                 }
