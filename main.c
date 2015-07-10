@@ -40,13 +40,9 @@ uint8_t goSel = 0;
 
 uint8_t message[140] = "HELLOWORLDHELLOWORLDHELLOWORLDHELLOWORLDHELLOWORLDHELLOWORLDHELLOWORLD\0";
 
-uint8_t previousMode = 0;
-uint8_t windowMode = 0;
-
 /**************** Prototypes *************************************/
 void incSelOpt(void);
 void decSelOpt(void);
-void changeMode(uint8_t newMode);
 /**************** End Prototypes *********************************/
 
 void init_IO(void){
@@ -68,11 +64,6 @@ void init_interrupts(void) {
     PCMSK0 |= 1<<PCINT6;    //interrupt on PCINT6 pin
     PCMSK0 |= 1<<PCINT7;    //interrupt on PCINT7 pin
     sei();
-}
-
-void changeMode(uint8_t newMode) {
-    previousMode = windowMode;
-    windowMode = newMode;
 }
 
 int main(void)
@@ -104,57 +95,27 @@ int main(void)
                 ++goSel;
             }
         }
-        switch (windowMode) {
-            case 0:
-                if (knobChange) {
-                    if (knobChange > 0) {
-                        incSelOpt();
-                        slideAlphaLeft();
-                    }
-                    else {
-                        decSelOpt();
-                        slideAlphaRight();
-                    }
-                    knobChange = 0;
-                }
 
-                if (goLeft) {
-                    changeMode(MENUCANCEL);
-                    goLeft = 0;
-                    goSel = 0;
-                    //cancelMsg();
-                    doBack();
-                }
-                else if (goSel) {
-                    selectChar();
-                    goLeft = 0;
-                    goSel = 0;
-                }
-                break;
+        if (knobChange) {
+            if (knobChange > 0) {
+                //menuUp();
+                knobLeft();
+            }
+            else {
+                //menuDn();
+                knobRight();
+            }
+            knobChange = 0;
+        }
 
-            default:
-                if (knobChange) {
-                    if (knobChange > 0) {
-                        //menuUp();
-                        knobLeft();
-                    }
-                    else {
-                        //menuDn();
-                        knobRight();
-                    }
-                    knobChange = 0;
-                }
-
-                if (goSel) {
-                    //Lookup and execute action
-                    doSelect[optionIndex]();
-                    goSel = 0;
-                }
-                else if (goLeft) {
-                    doBack();
-                    goLeft = 0;
-                };
-                break;
+        if (goSel) {
+            //Lookup and execute action
+            doSelect[optionIndex]();
+            goSel = 0;
+        }
+        else if (goLeft) {
+            doBack();
+            goLeft = 0;
         }
     }
 }
