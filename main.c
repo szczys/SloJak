@@ -40,7 +40,7 @@ uint8_t goSel = 0;
 
 uint8_t message[140] = "HELLOWORLDHELLOWORLDHELLOWORLDHELLOWORLDHELLOWORLDHELLOWORLDHELLOWORLD\0";
 
-uint8_t charListStart = 65;
+uint8_t charListStart = 0;
 #define CHARSETLEN  96  //How many characters does our fontfile have?
 
 uint8_t previousMode = 0;
@@ -88,7 +88,7 @@ int main(void)
     _delay_ms(200);
 
     oledSetCursor(cursX, cursY);
-    putChar(34,1);
+    putChar(66,1);
     advanceCursor(6);
 
     //show which letter will be selected
@@ -133,7 +133,7 @@ int main(void)
                 }
                 else if (goSel) {
                     oledSetCursor(cursX, cursY);
-                    putChar(findHighlighted(charListStart,CHARSETLEN), 1);
+                    putChar(findHighlighted(charListStart,CHARSETLEN)+32, 0);
                     advanceCursor(6);
                     goLeft = 0;
                     goSel = 0;
