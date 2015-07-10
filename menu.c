@@ -37,8 +37,8 @@ void showArrow(uint8_t boolean) {
     //FIXME: Get proper font file and use real arrow codes
     //Arrow on the left
     oledSetCursor(0,arrowOnLine);
-    if (boolean) { putChar(26,0); }
-    else { putChar(28,0); } //FIXME: This should be a space " " but font file doesn't implement it yet
+    if (boolean) { putChar(126,0); }
+    else { putChar(" ",0); } //FIXME: This should be a space " " but font file doesn't implement it yet
 }
 
 void menuUp(void) {

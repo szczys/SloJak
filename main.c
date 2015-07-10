@@ -40,8 +40,8 @@ uint8_t goSel = 0;
 
 uint8_t message[140] = "HELLOWORLDHELLOWORLDHELLOWORLDHELLOWORLDHELLOWORLDHELLOWORLDHELLOWORLD\0";
 
-uint8_t charListStart = 3;
-#define CHARSETLEN  26  //How many characters does our fontfile have?
+uint8_t charListStart = 65;
+#define CHARSETLEN  95  //How many characters does our fontfile have?
 
 uint8_t previousMode = 0;
 uint8_t windowMode = 0;

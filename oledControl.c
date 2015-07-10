@@ -1,5 +1,5 @@
 #include "oledControl.h"
-#include "font.h"
+#include "font5x8.h"
 
 void oledInit(void) {
     cursX = 1;
@@ -104,7 +104,7 @@ void putChar(uint8_t charIdx, uint8_t inverted) {
     uint8_t invertMask = 0x00;
     if (inverted) { invertMask = 0xFF; }
     for (uint8_t col = 0; col < 5; col++) {
-        oledWriteData((font5x7[(charIdx*5)+col])^invertMask);
+        oledWriteData((font5x8[((charIdx-32)*5)+col])^invertMask);
     }
     oledWriteData(invertMask);    //Space after each letter
 }
@@ -136,7 +136,7 @@ void putString(int16_t x, int16_t y, char *msg, uint8_t inverted) {
             rowPosition = y+charHeight + (charHeight*(charPos/charPerRow));
         }
         oledSetCursor(colPosition, rowPosition);
-        putChar(msg[j]-65, inverted);
+        putChar(msg[j], inverted);
     }
 }
 
@@ -149,11 +149,12 @@ void advanceCursor(uint8_t size) {
 }
 
 void showCharList(uint8_t startChar, uint8_t maxChar, uint8_t line) {
+    uint8_t nowChar = startChar;
     for (uint8_t i=0; i<CHARPERLINE; i++) {
-        if (startChar>=maxChar) { startChar = 0; }
+        if (nowChar>=maxChar) { nowChar = startChar; }
         oledSetCursor((i*CHARWID)+1,line);  //adding 1 centers on a 128px screen with 6px CHARWID
-        putChar(startChar, 0);
-        startChar++;
+        putChar(nowChar+32, 0);
+        nowChar++;
     }
 }
 
@@ -222,7 +223,7 @@ uint8_t embiggen(uint8_t charSlice, uint8_t bottom) {
 void putDblChar(uint8_t x, uint8_t y, uint8_t charIdx) {
     for (uint8_t row=0; row<2; row++) {
         for (uint8_t col = 0; col < 5; col++) {
-            uint8_t embiggened = embiggen(font5x7[(charIdx*5)+col],row);
+            uint8_t embiggened = embiggen(font5x8[((charIdx-32)*5)+col],row);
             oledSetCursor(x+(2*col),y+row);
             oledWriteData(embiggened);
             oledWriteData(embiggened);
