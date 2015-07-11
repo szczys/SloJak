@@ -1,5 +1,6 @@
 #include "oledControl.h"
 #include "font5x8.h"
+#include <avr/pgmspace.h>
 
 void oledInit(void) {
     cursX = 1;
@@ -104,9 +105,14 @@ void putChar(uint8_t charIdx, uint8_t inverted) {
     uint8_t invertMask = 0x00;
     if (inverted) { invertMask = 0xFF; }
     for (uint8_t col = 0; col < 5; col++) {
-        oledWriteData((font5x8[((charIdx-32)*5)+col])^invertMask);
+        oledWriteData((getFont(charIdx,col))^invertMask);
     }
     oledWriteData(invertMask);    //Space after each letter
+}
+
+char getFont(uint8_t charIdx, uint8_t column)
+{
+    return pgm_read_byte(font5x8+((charIdx-32)*5)+column);
 }
 
 void putString(int16_t x, int16_t y, char *msg, uint8_t inverted) {
@@ -222,7 +228,7 @@ uint8_t embiggen(uint8_t charSlice, uint8_t bottom) {
 void putDblChar(uint8_t x, uint8_t y, uint8_t charIdx) {
     for (uint8_t row=0; row<2; row++) {
         for (uint8_t col = 0; col < 5; col++) {
-            uint8_t embiggened = embiggen(font5x8[((charIdx-32)*5)+col],row);
+            uint8_t embiggened = embiggen(getFont(charIdx,col),row);
             oledSetCursor(x+(2*col),y+row);
             oledWriteData(embiggened);
             oledWriteData(embiggened);

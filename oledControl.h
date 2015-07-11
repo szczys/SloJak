@@ -31,6 +31,7 @@ extern void oledWriteData(uint8_t data);
 extern void oledSetCursor(uint8_t col, uint8_t page);
 extern void oledClearScreen(uint8_t black);
 extern void putChar(uint8_t charIdx, uint8_t inverted);
+char getFont(uint8_t charIdx, uint8_t column);
 extern void putString(int16_t x, int16_t y, char *msg, uint8_t inverted);
 extern void advanceCursor(uint8_t size);
 extern void showCharList(uint8_t startChar, uint8_t maxChar, uint8_t line);
