@@ -27,11 +27,15 @@ uint8_t const menuChoice[7][2] = {
 
 /**************** Menu Strings stored in PROGMEM ******************/
 const char strTitleHome[] PROGMEM = "Crappy Messager\0";
+const char strTitleSend[] PROGMEM = "Send Message?\0";
 const char strTitleCancel[] PROGMEM = "Cancel Message?\0";
 const char strOptYes[] PROGMEM = "Yes\0";
 const char strOptNo[] PROGMEM = "No\0";
 const char strOptCompose[] PROGMEM = "Write Message\0";
 const char strOptRead[] PROGMEM = "Read Messages\0";
+const char strOptSend[] PROGMEM = "Send Messages\0";
+const char strOptBackComposer[] PROGMEM = "Edit Message\0";
+const char strOptDiscard[] PROGMEM = "Discard Message\0";
 
 //Set initial behavior as compose message
 uint8_t curMenu = COMPOSE;
@@ -77,10 +81,9 @@ void knobScrollsAlphabet(void)
 
 
 void showArrow(uint8_t boolean) {
-    //FIXME: Get proper font file and use real arrow codes
     //Arrow on the left
     oledSetCursor(0,arrowOnLine);
-    if (boolean) { putChar(126,0); }
+    if (boolean) { putChar(128,0); }
     else { putChar(32,0); } //FIXME: This should be a space " " but font file doesn't implement it yet
 }
 
@@ -195,11 +198,37 @@ void selectChar(void)
     oledSetCursor(cursX, cursY);
     uint8_t selected = findHighlighted(charListStart,CHARSETLEN)+32;
 
-    writeMsg[writeMsgIdx] = selected;
-    writeMsg[writeMsgIdx+1] = 0;
-    putChar(writeMsg[writeMsgIdx], 0);
-    ++writeMsgIdx;
-    advanceCursor(6);
+    if (selected == 127) { sendMsg(); }
+    else {
+        writeMsg[writeMsgIdx] = selected;
+        writeMsg[writeMsgIdx+1] = 0;
+        putChar(writeMsg[writeMsgIdx], 0);
+        ++writeMsgIdx;
+        advanceCursor(6);
+    }
+}
+
+void sendMsg(void)
+{
+    doBack = &compose;      //Set back button behavior
+    knobNavigatesList();    //Setup Knob Behavior
+    //Fill the selection function pointer arrays
+    optionIndex = 0;
+    doSelect[0] = &sendMsg;             //Send
+    doSelect[1] = &compose;             //Back
+    doSelect[2] = &clearMsgAndReturn;   //Cancel
+    totOptions = 3;
+
+    //strcpy(tempStr, "CANCEL MESSAGE?\0");
+    strcpy_P(tempStr, strTitleSend);
+    showMenu(0, tempStr);
+
+    strcpy_P(tempStr, strOptSend);
+    putOption(2, tempStr);
+    strcpy_P(tempStr, strOptBackComposer);
+    putOption(3, tempStr);
+    strcpy_P(tempStr, strOptDiscard);
+    putOption(4, tempStr);
 }
 
 void cancelMsg(void)
@@ -233,7 +262,6 @@ void clearMsgAndReturn(void)
     homeScreen();
 }
 
-void sendMsg(void);
 void confirmSend(void);
 void confirmCancel(void);
 void msgList(void)
