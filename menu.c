@@ -21,6 +21,14 @@ uint8_t const menuChoice[7][2] = {
     { MSGDISPLAY, MSGDISPLAY }
     };
 
+/**************** Menu Strings stored in PROGMEM ******************/
+const char strTitleHome[] PROGMEM = "Crappy Messager\0";
+const char strTitleCancel[] PROGMEM = "Cancel Message?\0";
+const char strOptYes[] PROGMEM = "Yes\0";
+const char strOptNo[] PROGMEM = "No\0";
+const char strOptCompose[] PROGMEM = "Write Message\0";
+const char strOptRead[] PROGMEM = "Read Messages\0";
+
 //Set initial behavior as compose message
 uint8_t curMenu = COMPOSE;
 uint8_t optionIndex = 0;
@@ -138,17 +146,15 @@ void homeScreen(void)
     doSelect[0] = &compose;     //List available messages to read
     doSelect[1] = &msgList;  //Compose message
 
-    strcpy(tempStr, "Stupid Messager\0");
+    strcpy_P(tempStr, &strTitleHome);
     showMenu(0, tempStr);
 
     //No
-    //putString(12,2, "NO\0",0);
-    strcpy(tempStr, "Write Message\0");
+    strcpy_P(tempStr, &strOptCompose);
     putOption(2, tempStr);
 
     //Yes
-    //putString(12,3, "YES\0", 0);
-    strcpy(tempStr, "Read Meesages\0");
+    strcpy_P(tempStr, &strOptRead);
     putOption(3, tempStr);
 
     totOptions = 2;
@@ -184,17 +190,16 @@ void cancelMsg(void)
     doSelect[0] = &compose;    //TODO: if we go back to compose window, the partial composed message should appear
     doSelect[1] = &homeScreen;  //Exit to the home screen
 
-    strcpy(tempStr, "CANCEL MESSAGE?\0");
+    //strcpy(tempStr, "CANCEL MESSAGE?\0");
+    strcpy_P(tempStr, &strTitleCancel);
     showMenu(0, tempStr);
 
     //No
-    //putString(12,2, "NO\0",0);
-    strcpy(tempStr, "NO\0");
+    strcpy_P(tempStr, &strOptNo);
     putOption(2, tempStr);
 
     //Yes
-    //putString(12,3, "YES\0", 0);
-    strcpy(tempStr, "YES\0");
+    strcpy_P(tempStr, &strOptYes);
     putOption(3, tempStr);
 
     totOptions = 2;
