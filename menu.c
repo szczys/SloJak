@@ -2,6 +2,10 @@
 #include "oledControl.h"
 #include "string.h"
 
+uint8_t writeMsgIdx = 0;
+#define MAXMSGLEN   127
+char writeMsg[MAXMSGLEN] = "\0";
+
 /************************Menu Defines ****************************/
 #define COMPOSE         0
 #define HOMESCREEN      1
@@ -141,20 +145,20 @@ void homeScreen(void)
 {
     //TODO: Set back button behavior
     knobNavigatesList();    //Setup Knob Behavior
-    //TODO: Fill the selection function pointer arrays
+    //Fill the selection function pointer arrays
     optionIndex = 0;
     doSelect[0] = &compose;     //List available messages to read
     doSelect[1] = &msgList;  //Compose message
 
-    strcpy_P(tempStr, &strTitleHome);
+    strcpy_P(tempStr, strTitleHome);
     showMenu(0, tempStr);
 
     //No
-    strcpy_P(tempStr, &strOptCompose);
+    strcpy_P(tempStr, strOptCompose);
     putOption(2, tempStr);
 
     //Yes
-    strcpy_P(tempStr, &strOptRead);
+    strcpy_P(tempStr, strOptRead);
     putOption(3, tempStr);
 
     totOptions = 2;
@@ -163,6 +167,22 @@ void homeScreen(void)
 void compose(void)
 {
     oledClearScreen(1);
+
+    cursX = 0;
+    cursY = 0;
+
+    if (writeMsg[0] == 0) {
+        writeMsgIdx = 0;
+
+        //If we went to cancel a message and changed
+        //mind you don't need to reset this index
+    }
+    else {
+        putString(cursX, cursY, writeMsg, 0);
+        for (uint8_t i=0; i<writeMsgIdx; i++) { advanceCursor(6); }
+    }
+
+
     doBack = &cancelMsg;    //Set back button behavior
     knobScrollsAlphabet();  //Setup Knob Behavior
     //TODO: Fill the selection function pointer arrays
@@ -176,8 +196,14 @@ void compose(void)
 
 void selectChar(void)
 {
+    if (writeMsgIdx >= MAXMSGLEN-1) { return; }
+    
     oledSetCursor(cursX, cursY);
-    putChar(findHighlighted(charListStart,CHARSETLEN)+32, 0);
+    uint8_t selected = findHighlighted(charListStart,CHARSETLEN)+32;
+    
+    writeMsg[writeMsgIdx] = selected;
+    putChar(writeMsg[writeMsgIdx], 0);
+    ++writeMsgIdx;
     advanceCursor(6);
 }
 
@@ -191,15 +217,15 @@ void cancelMsg(void)
     doSelect[1] = &homeScreen;  //Exit to the home screen
 
     //strcpy(tempStr, "CANCEL MESSAGE?\0");
-    strcpy_P(tempStr, &strTitleCancel);
+    strcpy_P(tempStr, strTitleCancel);
     showMenu(0, tempStr);
 
     //No
-    strcpy_P(tempStr, &strOptNo);
+    strcpy_P(tempStr, strOptNo);
     putOption(2, tempStr);
 
     //Yes
-    strcpy_P(tempStr, &strOptYes);
+    strcpy_P(tempStr, strOptYes);
     putOption(3, tempStr);
 
     totOptions = 2;
