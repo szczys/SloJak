@@ -171,13 +171,7 @@ void compose(void)
     cursX = 0;
     cursY = 0;
 
-    if (writeMsg[0] == 0) {
-        writeMsgIdx = 0;
-
-        //If we went to cancel a message and changed
-        //mind you don't need to reset this index
-    }
-    else {
+    if (writeMsgIdx > 0) {
         putString(cursX, cursY, writeMsg, 0);
         for (uint8_t i=0; i<writeMsgIdx; i++) { advanceCursor(6); }
     }
@@ -197,11 +191,12 @@ void compose(void)
 void selectChar(void)
 {
     if (writeMsgIdx >= MAXMSGLEN-1) { return; }
-    
+
     oledSetCursor(cursX, cursY);
     uint8_t selected = findHighlighted(charListStart,CHARSETLEN)+32;
-    
+
     writeMsg[writeMsgIdx] = selected;
+    writeMsg[writeMsgIdx+1] = 0;
     putChar(writeMsg[writeMsgIdx], 0);
     ++writeMsgIdx;
     advanceCursor(6);
@@ -214,7 +209,7 @@ void cancelMsg(void)
     //TODO: Fill the selection function pointer arrays
     optionIndex = 0;
     doSelect[0] = &compose;    //TODO: if we go back to compose window, the partial composed message should appear
-    doSelect[1] = &homeScreen;  //Exit to the home screen
+    doSelect[1] = &clearMsgAndReturn;  //Exit to the home screen
 
     //strcpy(tempStr, "CANCEL MESSAGE?\0");
     strcpy_P(tempStr, strTitleCancel);
@@ -229,6 +224,13 @@ void cancelMsg(void)
     putOption(3, tempStr);
 
     totOptions = 2;
+}
+
+void clearMsgAndReturn(void)
+{
+    writeMsg[0] = 0;
+    writeMsgIdx = 0;
+    homeScreen();
 }
 
 void sendMsg(void);

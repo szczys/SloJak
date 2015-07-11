@@ -27,6 +27,7 @@ void homeScreen(void);
 void compose(void);
 void selectChar(void);
 void cancelMsg(void);
+void clearMsgAndReturn(void);
 void sendMsg(void);
 void confirmSend(void);
 void confirmCancel(void);
