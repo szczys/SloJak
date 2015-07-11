@@ -193,12 +193,25 @@ void compose(void)
 
 void selectChar(void)
 {
-    if (writeMsgIdx >= MAXMSGLEN-1) { return; }
+    if (writeMsgIdx >= MAXMSGLEN-2) { return; } //Messages have a length limit (plus zero terminator)
 
     oledSetCursor(cursX, cursY);
     uint8_t selected = findHighlighted(charListStart,CHARSETLEN)+32;
 
-    if (selected == 127) { sendMsg(); }
+    if (selected == 127) { sendMsg(); }     //Send Icon
+    else if (selected == 126) {             //Backspace Icon
+        if (writeMsgIdx > 0) {
+            writeMsg[writeMsgIdx] = 0;      //Add zero terminator
+            if (cursX<6) {
+                cursX = 122;
+                cursY -= 1;
+            }
+            else { cursX -= 6; }
+            oledSetCursor(cursX, cursY);
+            putChar(37, 0);                 //Erase char on screen
+            --writeMsgIdx;                  //Decrement index
+        }
+    }
     else {
         writeMsg[writeMsgIdx] = selected;
         writeMsg[writeMsgIdx+1] = 0;
