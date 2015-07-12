@@ -201,18 +201,18 @@ void selectChar(void)
     if (selected == 127) { sendMsg(); }     //Send Icon
     else if (selected == 126) {             //Backspace Icon
         if (writeMsgIdx > 0) {
-            writeMsg[writeMsgIdx] = 0;      //Add zero terminator
             if (cursX<6) {
-                cursX = 122;
+                cursX = 120;
                 cursY -= 1;
             }
             else { cursX -= 6; }
             oledSetCursor(cursX, cursY);
-            putChar(37, 0);                 //Erase char on screen
+            putChar(32, 0);                 //Erase char on screen
             --writeMsgIdx;                  //Decrement index
+            writeMsg[writeMsgIdx] = 0;      //Add zero terminator
         }
     }
-    else {
+    else {                                  //Place selected char
         writeMsg[writeMsgIdx] = selected;
         writeMsg[writeMsgIdx+1] = 0;
         putChar(writeMsg[writeMsgIdx], 0);
