@@ -1,6 +1,7 @@
 #include "menu.h"
 #include "oledControl.h"
 #include "string.h"
+#include <util/delay.h>
 
 uint8_t writeMsgIdx = 0;
 #define MAXMSGLEN   127
@@ -29,6 +30,8 @@ uint8_t const menuChoice[7][2] = {
 const char strTitleHome[] PROGMEM = "Crappy Messager\0";
 const char strTitleSend[] PROGMEM = "Send Message?\0";
 const char strTitleCancel[] PROGMEM = "Cancel Message?\0";
+const char strTitleSending[] PROGMEM = "Sending Message\0";
+const char strTitleSentMsg[] PROGMEM = "Message Sent\0";
 const char strOptYes[] PROGMEM = "Yes\0";
 const char strOptNo[] PROGMEM = "No\0";
 const char strOptCompose[] PROGMEM = "Write Message\0";
@@ -116,6 +119,19 @@ optionLine5
 
 indexes: whichMenu, totOptions, arrowOnLine, curTopOptionIdx
 
+
+homeScreen---compose---confirmSend
+                |
+            cancelMsg
+void selectChar(void);
+void sendMsg(void);
+void cancelMsg(void);
+void clearMsgAndReturn(void);
+void confirmSend(void);
+void confirmCancel(void);
+void msgList(void);
+void msgDsp(void);
+
 */
 
 /* TODO Menu Flow
@@ -198,7 +214,7 @@ void selectChar(void)
     oledSetCursor(cursX, cursY);
     uint8_t selected = findHighlighted(charListStart,CHARSETLEN)+32;
 
-    if (selected == 127) { sendMsg(); }     //Send Icon
+    if (selected == 127) { confirmSend(); }     //Send Icon
     else if (selected == 126) {             //Backspace Icon
         if (writeMsgIdx > 0) {
             if (cursX<6) {
@@ -221,7 +237,7 @@ void selectChar(void)
     }
 }
 
-void sendMsg(void)
+void confirmSend(void)
 {
     doBack = &compose;      //Set back button behavior
     knobNavigatesList();    //Setup Knob Behavior
@@ -275,7 +291,24 @@ void clearMsgAndReturn(void)
     homeScreen();
 }
 
-void confirmSend(void);
+void sendMsg(void) {
+    oledClearScreen(1);
+    strcpy_P(tempStr, strTitleSending);
+    putOption(3, tempStr);
+
+    //TODO: reset the control function pointers
+    //TODO: Send message to radio
+    _delay_ms(2000);    //This is a dummy placeholder
+
+    //If send was successful display that and clear the message
+    strcpy_P(tempStr, strTitleSentMsg);
+    putOption(3, tempStr);
+    _delay_ms(1000);    //FIXME
+
+    writeMsgIdx = 0;
+    writeMsg[writeMsgIdx] = 0;
+    homeScreen();
+}
 void confirmCancel(void);
 void msgList(void)
 {
